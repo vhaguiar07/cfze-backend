@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';  // Adicionando ConflictException
+import { Injectable, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -10,14 +10,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // Cadastro de um novo usuário
   async register(username: string, password: string, confirmPassword: string) {
-    // Verifica se as senhas coincidem
     if (password !== confirmPassword) {
       throw new BadRequestException('As senhas não coincidem');
     }
 
-    // Verifica se o nome de usuário já existe
     const existingUser = await this.prisma.user.findUnique({
       where: { username },
     });
@@ -26,7 +23,7 @@ export class AuthService {
       throw new ConflictException('Nome de usuário já existe');
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // Hash da senha
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.prisma.user.create({
       data: {
         username,
@@ -37,7 +34,6 @@ export class AuthService {
     return user;
   }
 
-  // Login de usuário (gera o JWT)
   async login(username: string, password: string) {
     const user = await this.prisma.user.findUnique({
       where: { username },
