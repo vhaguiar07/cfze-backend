@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';  // Adicionando ConflictException
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -10,8 +10,23 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(username: string, password: string) {
-    const hashedPassword = await bcrypt.hash(password, 10);
+  // Cadastro de um novo usuário
+  async register(username: string, password: string, confirmPassword: string) {
+    // Verifica se as senhas coincidem
+    if (password !== confirmPassword) {
+      throw new BadRequestException('As senhas não coincidem');
+    }
+
+    // Verifica se o nome de usuário já existe
+    const existingUser = await this.prisma.user.findUnique({
+      where: { username },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Nome de usuário já existe');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash da senha
     const user = await this.prisma.user.create({
       data: {
         username,
@@ -22,18 +37,19 @@ export class AuthService {
     return user;
   }
 
+  // Login de usuário (gera o JWT)
   async login(username: string, password: string) {
     const user = await this.prisma.user.findUnique({
       where: { username },
     });
 
     if (!user) {
-      throw new Error('Usuário não encontrado');
+      throw new UnauthorizedException('Usuário não encontrado');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new Error('Senha incorreta');
+      throw new UnauthorizedException('Senha incorreta');
     }
 
     const payload = { username: user.username, sub: user.id };
