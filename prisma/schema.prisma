@@ -14,3 +14,86 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Employee {
+  id                     String   @id @default(uuid()) @db.Uuid
+  fullName               String
+  address                String
+  city                   String
+  postalCode             String
+  phoneNumber            String
+  nationality            String
+  cpf                    String   @unique
+  rg                     String   @unique
+  rgIssueDate            DateTime
+  rgIssuingAgency        String
+  rgState                String
+  ctps                   String   @unique
+  pisPasep               String   @unique
+  educationLevel         String
+  voterRegistration      String?
+  reservist              String?
+  fatherName             String?
+  motherName             String?
+  maritalStatus          String
+  birthDate              DateTime
+  birthPlace             String
+  admissionDate          DateTime
+  salary                 Decimal
+  jobTitle               String
+  monthlyWorkloadHours   Int
+  weeklyWorkloadHours    Int
+  dayOff                 String
+  transportDiscount      Boolean
+
+  // Work Schedule - Weekdays
+  firstEntryWeekday      String
+  firstExitWeekday       String
+  secondEntryWeekday     String?
+  secondExitWeekday      String?
+
+  // Work Schedule - Weekends
+  firstEntryWeekend      String
+  firstExitWeekend       String
+  secondEntryWeekend     String?
+  secondExitWeekend      String?
+
+  // PPE (Personal Protective Equipment)
+  receivedPPE            Boolean
+  pantsSize              String?
+  shirtSize              String?
+  bootSize               String?
+  jacketSize             String?
+  balaclavaSize          String?
+  gogglesSize            String?
+  glovesSize             String?
+  ppeReceiptDate         DateTime?
+
+  // Vacation and Termination
+  tookVacation           Boolean
+  vacationDate           DateTime?
+  terminationType        String?  // Options: 'Fired', 'Resigned', 'Just Cause'
+  terminationDate        DateTime?
+  receivedIndemnity      Boolean?
+  indemnityDate          DateTime?
+  indemnityValue         Decimal?
+
+  // Interview Information
+  admissionInterview     Boolean
+  exitInterview          Boolean
+
+  // Medical Examinations
+  admissionAsoDates      DateTime[]
+  periodicAsoDates       DateTime[]
+  dismissalAsoDates      DateTime[]
+
+  // Leave and Accident Records
+  paternityLeaveDates    DateTime[]
+  maternityLeaveDates    DateTime[]
+  electoralLeaveDates    DateTime[]
+  sufferedAccident       Boolean
+  leaveOfAbsenceDates    DateTime[]
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
