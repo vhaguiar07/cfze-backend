@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Post, Query, NotFoundException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiOkResponse, ApiCreatedResponse, ApiQuery, ApiNotFoundResponse } from '@nestjs/swagger';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeService } from './employee.service';
@@ -160,84 +160,251 @@ export class EmployeeController {
     return this.employeeService.create(createEmployeeDto);
   }
 
-  @Get('list')
-  @ApiOperation({ summary: 'Lista todos os funcionários', description: 'Recupera uma lista de todos os funcionários cadastrados' })
+  @Get('listAll')
+  @ApiOperation({ summary: 'Lista todos os funcionários com paginação e ordenação opcionais' })
+  @ApiQuery({ name: 'page', required: false, description: 'Número da página (padrão 1)', type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Itens por página (padrão 10)', type: Number, example: 10 })
+  @ApiQuery({ name: 'sortBy', required: false, description: 'Campo para ordenação (ex: fullName, createdAt)', type: String, example: 'createdAt' })
+  @ApiQuery({ name: 'sortOrder', required: false, description: 'Ordem da ordenação (asc ou desc)', type: String, example: 'desc' })
   @ApiOkResponse({
     description: 'Lista de funcionários recuperada com sucesso',
     schema: {
-      example: [
-        {
-          id: '550e8400-e29b-41d4-a716-446655440000',
-          fullName: 'John Doe',
-          address: 'Rua dos Estudantes, 87',
-          city: 'São Paulo',
-          postalCode: '12345-678',
-          phoneNumber: '(11) 98765-4321',
-          nationality: 'Brasileiro',
-          cpf: '123.456.789-00',
-          rg: '12345678',
-          rgIssueDate: '2022-01-01T00:00:00.000Z',
-          rgIssuingAgency: 'SSP',
-          rgState: 'SP',
-          ctps: '999.999.999-9',
-          pisPasep: '999.999.999',
-          educationLevel: 'Superior Completo',
-          voterRegistration: '999999999999',
-          reservist: '9999999999-99999999-99',
-          fatherName: 'John Father',
-          motherName: 'John Mother',
-          maritalStatus: 'Casado',
-          birthDate: '1993-01-01T00:00:00.000Z',
-          birthPlace: 'São Paulo',
-          admissionDate: '2024-07-28T13:35:09.011Z',
-          salary: 3500.00,
-          jobTitle: 'Software Developer',
-          monthlyWorkloadHours: 190,
-          weeklyWorkloadHours: 44,
-          dayOff: 'Domingo',
-          transportDiscount: true,
-          firstEntryWeekday: '08:00',
-          firstExitWeekday: '12:00',
-          secondEntryWeekday: '13:00',
-          secondExitWeekday: '17:00',
-          firstEntryWeekend: '10:00',
-          firstExitWeekend: '12:00',
-          secondEntryWeekend: '13:00',
-          secondExitWeekend: '15:00',
-          receivedPPE: true,
-          pantsSize: '42',
-          shirtSize: 'G',
-          bootSize: '42',
-          jacketSize: 'G',
-          balaclavaSize: 'M',
-          gogglesSize: 'M',
-          glovesSize: 'M',
-          ppeReceiptDate: '2024-01-15T00:00:00.000Z',
-          tookVacation: true,
-          vacationDate: '2023-12-01T00:00:00.000Z',
-          terminationType: 'Fired',
-          terminationDate: '2024-01-01T00:00:00.000Z',
-          receivedIndemnity: true,
-          indemnityDate: '2024-02-01T00:00:00.000Z',
-          indemnityValue: 5000.00,
-          admissionInterview: true,
-          exitInterview: true,
-          admissionAsoDates: ['2024-01-01T00:00:00.000Z'],
-          periodicAsoDates: ['2024-01-01T00:00:00.000Z', '2025-01-01T00:00:00.000Z'],
-          dismissalAsoDates: ['2024-06-01T00:00:00.000Z'],
-          paternityLeaveDates: ['2024-05-01T00:00:00.000Z'],
-          maternityLeaveDates: ['2024-08-01T00:00:00.000Z'],
-          electoralLeaveDates: ['2024-11-01T00:00:00.000Z'],
-          sufferedAccident: true,
-          leaveOfAbsenceDates: ['2024-07-01T00:00:00.000Z'],
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z'
-        }
-      ],
-    },
+      example: {
+        total: 1,
+        page: 1,
+        limit: 10,
+        employees: [
+          {
+            id: '550e8400-e29b-41d4-a716-446655440000',
+            fullName: 'John Doe',
+            address: 'Rua dos Estudantes, 87',
+            city: 'São Paulo',
+            postalCode: '12345-678',
+            phoneNumber: '(11) 98765-4321',
+            nationality: 'Brasileiro',
+            cpf: '123.456.789-00',
+            rg: '12345678',
+            rgIssueDate: '2022-01-01T00:00:00.000Z',
+            rgIssuingAgency: 'SSP',
+            rgState: 'SP',
+            ctps: '999.999.999-9',
+            pisPasep: '999.999.999',
+            educationLevel: 'Superior Completo',
+            voterRegistration: '999999999999',
+            reservist: '9999999999-99999999-99',
+            fatherName: 'John Father',
+            motherName: 'John Mother',
+            maritalStatus: 'Casado',
+            birthDate: '1993-01-01T00:00:00.000Z',
+            birthPlace: 'São Paulo',
+            admissionDate: '2024-07-28T13:35:09.011Z',
+            salary: 3500.00,
+            jobTitle: 'Software Developer',
+            monthlyWorkloadHours: 190,
+            weeklyWorkloadHours: 44,
+            dayOff: 'Domingo',
+            transportDiscount: true,
+            firstEntryWeekday: '08:00',
+            firstExitWeekday: '12:00',
+            secondEntryWeekday: '13:00',
+            secondExitWeekday: '17:00',
+            firstEntryWeekend: '10:00',
+            firstExitWeekend: '12:00',
+            secondEntryWeekend: '13:00',
+            secondExitWeekend: '15:00',
+            receivedPPE: true,
+            pantsSize: '42',
+            shirtSize: 'G',
+            bootSize: '42',
+            jacketSize: 'G',
+            balaclavaSize: 'M',
+            gogglesSize: 'M',
+            glovesSize: 'M',
+            ppeReceiptDate: '2024-01-15T00:00:00.000Z',
+            tookVacation: true,
+            vacationDate: '2023-12-01T00:00:00.000Z',
+            terminationType: 'Fired',
+            terminationDate: '2024-01-01T00:00:00.000Z',
+            receivedIndemnity: true,
+            indemnityDate: '2024-02-01T00:00:00.000Z',
+            indemnityValue: 5000.00,
+            admissionInterview: true,
+            exitInterview: true,
+            admissionAsoDates: ['2024-01-01T00:00:00.000Z'],
+            periodicAsoDates: ['2024-01-01T00:00:00.000Z', '2025-01-01T00:00:00.000Z'],
+            dismissalAsoDates: ['2024-06-01T00:00:00.000Z'],
+            paternityLeaveDates: ['2024-05-01T00:00:00.000Z'],
+            maternityLeaveDates: ['2024-08-01T00:00:00.000Z'],
+            electoralLeaveDates: ['2024-11-01T00:00:00.000Z'],
+            sufferedAccident: true,
+            leaveOfAbsenceDates: ['2024-07-01T00:00:00.000Z'],
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z'
+          }
+        ]
+      }
+    }
   })
-  findAll() {
-    return this.employeeService.findAll();
+  async findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc'
+  ) {
+    const currentPage = page || 1;
+    const currentLimit = limit ?? 10;
+    const currentSortBy = sortBy || 'createdAt';
+    const currentSortOrder = sortOrder || 'desc';
+
+    const { totalEmployees, employees } = await this.employeeService.findAll(currentPage, currentLimit, currentSortBy, currentSortOrder);
+
+    return {
+      total: totalEmployees,
+      page: currentPage,
+      limit: currentLimit,
+      employees,
+    };
+  }
+
+  @Get('listOne/:id')
+  @ApiOperation({ summary: 'Obtém um funcionário pelo ID', description: 'Retorna os dados completos de um funcionário específico pelo ID' })
+  @ApiParam({ name: 'id', description: 'ID do funcionário', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiOkResponse({
+    description: 'Funcionário encontrado com sucesso',
+    schema: {
+      example:           {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        fullName: 'John Doe',
+        address: 'Rua dos Estudantes, 87',
+        city: 'São Paulo',
+        postalCode: '12345-678',
+        phoneNumber: '(11) 98765-4321',
+        nationality: 'Brasileiro',
+        cpf: '123.456.789-00',
+        rg: '12345678',
+        rgIssueDate: '2022-01-01T00:00:00.000Z',
+        rgIssuingAgency: 'SSP',
+        rgState: 'SP',
+        ctps: '999.999.999-9',
+        pisPasep: '999.999.999',
+        educationLevel: 'Superior Completo',
+        voterRegistration: '999999999999',
+        reservist: '9999999999-99999999-99',
+        fatherName: 'John Father',
+        motherName: 'John Mother',
+        maritalStatus: 'Casado',
+        birthDate: '1993-01-01T00:00:00.000Z',
+        birthPlace: 'São Paulo',
+        admissionDate: '2024-07-28T13:35:09.011Z',
+        salary: 3500.00,
+        jobTitle: 'Software Developer',
+        monthlyWorkloadHours: 190,
+        weeklyWorkloadHours: 44,
+        dayOff: 'Domingo',
+        transportDiscount: true,
+        firstEntryWeekday: '08:00',
+        firstExitWeekday: '12:00',
+        secondEntryWeekday: '13:00',
+        secondExitWeekday: '17:00',
+        firstEntryWeekend: '10:00',
+        firstExitWeekend: '12:00',
+        secondEntryWeekend: '13:00',
+        secondExitWeekend: '15:00',
+        receivedPPE: true,
+        pantsSize: '42',
+        shirtSize: 'G',
+        bootSize: '42',
+        jacketSize: 'G',
+        balaclavaSize: 'M',
+        gogglesSize: 'M',
+        glovesSize: 'M',
+        ppeReceiptDate: '2024-01-15T00:00:00.000Z',
+        tookVacation: true,
+        vacationDate: '2023-12-01T00:00:00.000Z',
+        terminationType: 'Fired',
+        terminationDate: '2024-01-01T00:00:00.000Z',
+        receivedIndemnity: true,
+        indemnityDate: '2024-02-01T00:00:00.000Z',
+        indemnityValue: 5000.00,
+        admissionInterview: true,
+        exitInterview: true,
+        admissionAsoDates: ['2024-01-01T00:00:00.000Z'],
+        periodicAsoDates: ['2024-01-01T00:00:00.000Z', '2025-01-01T00:00:00.000Z'],
+        dismissalAsoDates: ['2024-06-01T00:00:00.000Z'],
+        paternityLeaveDates: ['2024-05-01T00:00:00.000Z'],
+        maternityLeaveDates: ['2024-08-01T00:00:00.000Z'],
+        electoralLeaveDates: ['2024-11-01T00:00:00.000Z'],
+        sufferedAccident: true,
+        leaveOfAbsenceDates: ['2024-07-01T00:00:00.000Z'],
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z'
+      }
+    }
+  })
+  @ApiNotFoundResponse({ description: 'Funcionário não encontrado' })
+  async findOne(@Param('id') id: string) {
+    const employee = await this.employeeService.findOne(id);
+    if (!employee) {
+      throw new NotFoundException(`Funcionário com ID ${id} não encontrado`);
+    }
+    return employee;
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Busca funcionários pelo nome com paginação', description: 'Retorna funcionários cujo nome contém o valor pesquisado, com paginação' })
+  @ApiQuery({
+    name: 'fullName',
+    required: true,
+    description: 'Nome (ou parte) do funcionário a ser pesquisado',
+    type: String,
+    example: 'John',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Número da página (padrão 1)',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Número de itens por página (padrão 10)',
+    type: Number,
+    example: 10,
+  })
+  @ApiOkResponse({
+    description: 'Lista de funcionários encontrados',
+    schema: {
+      example: {
+        total: 2,
+        page: 1,
+        limit: 10,
+        employees: [
+          {
+            id: '550e8400-e29b-41d4-a716-446655440000',
+            fullName: 'John Doe',
+            address: 'Rua dos Estudantes, 87',
+            city: 'São Paulo',
+            postalCode: '12345-678',
+            phoneNumber: '(11) 98765-4321',
+            jobTitle: 'Software Developer',
+            createdAt: '2024-01-01T00:00:00.000Z',
+            updatedAt: '2024-01-01T00:00:00.000Z',
+          }
+        ]
+      }
+    }
+  })
+  async searchEmployees(
+    @Query('fullName') fullName: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+  ) {
+    const currentPage = page || 1;
+    const currentLimit = limit ?? 10;
+
+    return await this.employeeService.searchByFullName(fullName, currentPage, currentLimit);
   }
 
   @Patch('update/:id')

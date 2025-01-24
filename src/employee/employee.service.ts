@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -76,20 +76,101 @@ export class EmployeeService {
     });
   }
 
-  async findAll() {
-    return await this.prisma.employee.findMany();
+  async findAll(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: 'asc' | 'desc' = 'desc') {
+    const skip = page > 0 && limit > 0 ? (page - 1) * limit : 0;
+    const take = limit > 0 ? limit : undefined;
+
+    const orderBy: any = {
+      [sortBy]: sortOrder,
+    };
+
+    const employees = await this.prisma.employee.findMany({
+      skip: take ? skip : undefined,
+      take: take,
+      orderBy: orderBy,
+    });
+
+    const totalEmployees = await this.prisma.employee.count();
+
+    return {
+      totalEmployees,
+      employees,
+    };
   }
 
   async findOne(id: string) {
-    return await this.prisma.employee.findUnique({
+    const employee = await this.prisma.employee.findUnique({
       where: { id },
     });
+
+    if (!employee) {
+      throw new NotFoundException(`Funcionário com ID ${id} não encontrado`);
+    }
+
+    return employee;
+  }
+
+  async searchByFullName(fullName: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const employees = await this.prisma.employee.findMany({
+      where: {
+        fullName: {
+          contains: fullName,
+          mode: 'insensitive',
+        },
+      },
+      orderBy: {
+        fullName: 'asc',
+      },
+      skip,
+      take: limit,
+    });
+
+    const total = await this.prisma.employee.count({
+      where: {
+        fullName: {
+          contains: fullName,
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    return {
+      total,
+      page,
+      limit,
+      employees,
+    };
   }
 
   async update(id: string, updateEmployeeDto: UpdateEmployeeDto) {
+    const existingEmployee = await this.prisma.employee.findUnique({
+      where: { id },
+      select: {
+        admissionAsoDates: true,
+        periodicAsoDates: true,
+        dismissalAsoDates: true,
+        paternityLeaveDates: true,
+        maternityLeaveDates: true,
+        electoralLeaveDates: true,
+        leaveOfAbsenceDates: true,
+      },
+    });
+
+    const mergedData = {
+      admissionAsoDates: [...new Set([...(existingEmployee?.admissionAsoDates || []), ...(updateEmployeeDto.admissionAsoDates || [])])],
+      periodicAsoDates: [...new Set([...(existingEmployee?.periodicAsoDates || []), ...(updateEmployeeDto.periodicAsoDates || [])])],
+      dismissalAsoDates: [...new Set([...(existingEmployee?.dismissalAsoDates || []), ...(updateEmployeeDto.dismissalAsoDates || [])])],
+      paternityLeaveDates: [...new Set([...(existingEmployee?.paternityLeaveDates || []), ...(updateEmployeeDto.paternityLeaveDates || [])])],
+      maternityLeaveDates: [...new Set([...(existingEmployee?.maternityLeaveDates || []), ...(updateEmployeeDto.maternityLeaveDates || [])])],
+      electoralLeaveDates: [...new Set([...(existingEmployee?.electoralLeaveDates || []), ...(updateEmployeeDto.electoralLeaveDates || [])])],
+      leaveOfAbsenceDates: [...new Set([...(existingEmployee?.leaveOfAbsenceDates || []), ...(updateEmployeeDto.leaveOfAbsenceDates || [])])],
+    };
+
     return await this.prisma.employee.update({
       where: { id },
-      data: updateEmployeeDto,
+      data: { ...updateEmployeeDto, ...mergedData },
     });
-  }
+  }  
 }
