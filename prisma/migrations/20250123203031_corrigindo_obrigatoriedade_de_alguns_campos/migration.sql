@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Employee" ALTER COLUMN "rgIssueDate" DROP NOT NULL,
+ALTER COLUMN "rgIssuingAgency" DROP NOT NULL,
+ALTER COLUMN "rgState" DROP NOT NULL,
+ALTER COLUMN "maritalStatus" DROP NOT NULL,
+ALTER COLUMN "birthPlace" DROP NOT NULL;
