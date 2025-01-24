@@ -248,4 +248,50 @@ export class EmployeeService {
 
     return { message: 'Funcionário restaurado com sucesso' };
   }
+
+  async findAllDeleted(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: 'asc' | 'desc' = 'desc') {
+    const skip = page > 0 && limit > 0 ? (page - 1) * limit : 0;
+    const take = limit > 0 ? limit : undefined;
+
+    const orderBy: any = {
+      [sortBy]: sortOrder,
+    };
+
+    const employees = await this.prisma.employee.findMany({
+      where: {
+        deletedAt: { not: null }, 
+      },
+      skip: take ? skip : undefined,
+      take: take,
+      orderBy: orderBy,
+    });
+
+    const totalEmployees = await this.prisma.employee.count({
+      where: {
+        deletedAt: { not: null }, 
+      },
+    });
+
+    return {
+      total: totalEmployees,
+      page,
+      limit,
+      employees,
+    };
+  }
+
+  async findOneDeleted(id: string) {
+    const employee = await this.prisma.employee.findFirst({
+      where: {
+        id,
+        deletedAt: { not: null }, 
+      },
+    });
+
+    if (!employee) {
+      throw new NotFoundException(`Funcionário com ID ${id} não encontrado`);
+    }
+
+    return employee;
+  }
 }
