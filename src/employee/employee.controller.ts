@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Delete, Query, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiOkResponse, ApiCreatedResponse, ApiQuery, ApiNotFoundResponse } from '@nestjs/swagger';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -256,15 +256,20 @@ export class EmployeeController {
     const currentSortBy = sortBy || 'createdAt';
     const currentSortOrder = sortOrder || 'desc';
 
-    const { totalEmployees, employees } = await this.employeeService.findAll(currentPage, currentLimit, currentSortBy, currentSortOrder);
+    const { total, employees } = await this.employeeService.findAll(
+      currentPage, 
+      currentLimit, 
+      currentSortBy, 
+      currentSortOrder
+    );
 
     return {
-      total: totalEmployees,
+      total,
       page: currentPage,
       limit: currentLimit,
       employees,
     };
-  }
+  }  
 
   @Get('listOne/:id')
   @ApiOperation({ summary: 'Obtém um funcionário pelo ID', description: 'Retorna os dados completos de um funcionário específico pelo ID' })
@@ -538,5 +543,39 @@ export class EmployeeController {
   @ApiResponse({ status: 404, description: 'Funcionário não encontrado' })
   update(@Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
     return this.employeeService.update(id, updateEmployeeDto);
+  }
+
+  @Delete('delete/:id')
+  @ApiOperation({ summary: 'Deleta um funcionário (soft delete)', description: 'Marca o funcionário como excluído sem removê-lo do banco' })
+  @ApiParam({ name: 'id', description: 'ID do funcionário a ser deletado', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiOkResponse({
+    description: 'Funcionário marcado como deletado com sucesso',
+    schema: {
+      example: {
+        message: 'Funcionário deletado com sucesso',
+      },
+    },
+  })
+  async softDelete(@Param('id') id: string) {
+    const deleted = await this.employeeService.softDelete(id);
+    if (!deleted) {
+      throw new NotFoundException(`Funcionário com ID ${id} não encontrado.`);
+    }
+    return { message: 'Funcionário deletado com sucesso' };
+  }
+
+  @Patch('restore/:id')
+  @ApiOperation({ summary: 'Restaura um funcionário deletado', description: 'Remove a marcação de exclusão do funcionário' })
+  @ApiParam({ name: 'id', description: 'ID do funcionário', example: '550e8400-e29b-41d4-a716-446655440000' })
+  @ApiOkResponse({
+    description: 'Funcionário restaurado com sucesso',
+    schema: {
+      example: {
+        message: 'Funcionário restaurado com sucesso',
+      },
+    },
+  })
+  async restore(@Param('id') id: string) {
+    return this.employeeService.restore(id);
   }
 }

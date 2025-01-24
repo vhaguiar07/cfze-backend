@@ -95,22 +95,34 @@ export class EmployeeService {
     };
 
     const employees = await this.prisma.employee.findMany({
+      where: {
+        deletedAt: null,
+      },
       skip: take ? skip : undefined,
       take: take,
       orderBy: orderBy,
     });
 
-    const totalEmployees = await this.prisma.employee.count();
+    const totalEmployees = await this.prisma.employee.count({
+      where: {
+        deletedAt: null,
+      },
+    });
 
     return {
-      totalEmployees,
+      total: totalEmployees,
+      page,
+      limit,
       employees,
     };
   }
 
   async findOne(id: string) {
-    const employee = await this.prisma.employee.findUnique({
-      where: { id },
+    const employee = await this.prisma.employee.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
     });
 
     if (!employee) {
@@ -129,6 +141,7 @@ export class EmployeeService {
           contains: fullName,
           mode: 'insensitive',
         },
+        deletedAt: null,
       },
       orderBy: {
         fullName: 'asc',
@@ -143,6 +156,7 @@ export class EmployeeService {
           contains: fullName,
           mode: 'insensitive',
         },
+        deletedAt: null,
       },
     });
 
@@ -195,5 +209,43 @@ export class EmployeeService {
       }
       throw error;
     }
+  }
+
+  async softDelete(id: string): Promise<boolean> {
+    const existingEmployee = await this.prisma.employee.findFirst({
+      where: { id, deletedAt: null },
+    });
+
+    if (!existingEmployee) {
+      throw new NotFoundException(`Funcionário com ID ${id} não encontrado ou já excluído.`);
+    }
+
+    await this.prisma.employee.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+
+    return true;
+  }
+
+  async restore(id: string) {
+    const employee = await this.prisma.employee.findUnique({
+      where: { id },
+    });
+
+    if (!employee) {
+      throw new NotFoundException(`Funcionário com ID ${id} não encontrado.`);
+    }
+
+    if (!employee.deletedAt) {
+      throw new ConflictException(`Funcionário com ID ${id} já está ativo.`);
+    }
+
+    await this.prisma.employee.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+
+    return { message: 'Funcionário restaurado com sucesso' };
   }
 }
