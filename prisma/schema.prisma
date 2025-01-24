@@ -31,8 +31,8 @@ model Employee {
   ctps                   String    @unique
   pisPasep               String    @unique
   educationLevel         String
-  voterRegistration      String?
-  reservist              String?
+  voterRegistration      String?   @unique
+  reservist              String?   @unique
   fatherName             String?
   motherName             String?
   maritalStatus          String?
