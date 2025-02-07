@@ -36,6 +36,7 @@ model Employee {
   fatherName             String?
   motherName             String?
   maritalStatus          String?
+  sex                    String
   birthDate              DateTime
   birthPlace             String?
   admissionDate          DateTime
@@ -94,7 +95,78 @@ model Employee {
   sufferedAccident       Boolean?
   leaveOfAbsenceDates    DateTime[] @default([])
 
+  // Relations
+  incidentRecords        IncidentRecord[]
+  accidentControls       AccidentControl[]
+  accidentCosts          AccidentCost[]
+
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
   deletedAt              DateTime?
+}
+
+model IncidentRecord {
+  id                    String   @id @default(uuid()) @db.Uuid
+  employeeId            String   @db.Uuid
+  employee              Employee @relation(fields: [employeeId], references: [id])
+
+  month                 String
+  accidentsWithLeave    Boolean
+  accidentOrIncident    String  // 'Accident' or 'Incident'
+  injurySeverity        String  // e.g., 'Mild', 'Moderate', 'Severe'
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model AccidentControl {
+  id                    String   @id @default(uuid()) @db.Uuid
+  employeeId            String   @db.Uuid
+  employee              Employee @relation(fields: [employeeId], references: [id])
+
+  accidentNumber        String  @unique  // Número da CAT
+  accidentDate          DateTime
+  birthDate            DateTime
+  sex                   String
+  month                 String
+  year                  Int
+  department            String
+  jobTitle              String
+  accidentType          String  // e.g., 'Queda', 'Corte', 'Impacto'
+  accidentDescription   String
+  accidentsWithLeave    Boolean
+  bodyPartAffected      String
+  injurySeverity        String  // e.g., 'Mild', 'Moderate', 'Severe'
+  accidentOrIncident    String  // 'Accident' or 'Incident'
+  accidentCount         Int
+  incidentCount         Int
+  medicalCertificates   Int
+  daysAway              Int
+  comments              String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model AccidentCost {
+  id                    String   @id @default(uuid()) @db.Uuid
+  employeeId            String   @db.Uuid
+  employee              Employee @relation(fields: [employeeId], references: [id])
+
+  registrationNumber    String  @unique  // Matrícula do funcionário
+  accidentDate          DateTime
+  sex                   String
+  accidentsWithLeave    Boolean
+  leaveStartDate        DateTime?
+  daysAway              Int?
+  hoursAway             Int?
+  medicationCost        Decimal  @default(0.0)
+  foodCost              Decimal  @default(0.0)
+  materialCost          Decimal  @default(0.0)
+  legalCost             Decimal  @default(0.0)
+  totalCost             Decimal  @default(0.0)
+  comments              String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
