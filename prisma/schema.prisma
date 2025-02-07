@@ -42,6 +42,7 @@ model Employee {
   admissionDate          DateTime
   salary                 Decimal
   jobTitle               String
+  department             String?
   monthlyWorkloadHours   Int
   weeklyWorkloadHours    Int
   dayOff                 String?
@@ -128,9 +129,6 @@ model AccidentControl {
   accidentDate          DateTime
   birthDate            DateTime
   sex                   String
-  month                 String
-  year                  Int
-  department            String
   jobTitle              String
   accidentType          String  // e.g., 'Queda', 'Corte', 'Impacto'
   accidentDescription   String
@@ -138,8 +136,6 @@ model AccidentControl {
   bodyPartAffected      String
   injurySeverity        String  // e.g., 'Mild', 'Moderate', 'Severe'
   accidentOrIncident    String  // 'Accident' or 'Incident'
-  accidentCount         Int
-  incidentCount         Int
   medicalCertificates   Int
   daysAway              Int
   comments              String?

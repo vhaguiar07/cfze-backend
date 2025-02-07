@@ -93,6 +93,10 @@ export class CreateEmployeeDto {
   @IsString({ message: 'O campo Estado Civil deve ser uma string' })
   maritalStatus: string;
 
+  @ApiProperty({ example: 'Male' })
+  @IsString({ message: 'O campo Sexo deve ser uma string' })
+  sex: string;
+
   @ApiProperty({ example: '1990-05-15T00:00:00.000Z' })
   @IsDate({ message: 'O campo Data de Nascimento deve ser uma data válida' })
   @IsNotEmpty({ message: 'O campo Data de Nascimento é obrigatório' })
@@ -116,6 +120,10 @@ export class CreateEmployeeDto {
   @IsString({ message: 'O campo Cargo deve ser uma string' })
   @IsNotEmpty({ message: 'O campo Cargo é obrigatório' })
   jobTitle: string;
+
+  @ApiProperty({ example: 'IT' })
+  @IsString({ message: 'O campo Departamento deve ser uma string' })
+  department: string;
 
   @ApiProperty({ example: 160 })
   @IsInt({ message: 'O campo Carga Horária Mensal deve ser um número inteiro' })
