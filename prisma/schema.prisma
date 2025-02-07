@@ -99,7 +99,6 @@ model Employee {
   // Relations
   incidentRecords        IncidentRecord[]
   accidentControls       AccidentControl[]
-  accidentCosts          AccidentCost[]
 
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
@@ -127,7 +126,7 @@ model AccidentControl {
 
   accidentNumber        String  @unique  // Número da CAT
   accidentDate          DateTime
-  birthDate            DateTime
+  birthDate             DateTime
   sex                   String
   jobTitle              String
   accidentType          String  // e.g., 'Queda', 'Corte', 'Impacto'
@@ -137,8 +136,13 @@ model AccidentControl {
   injurySeverity        String  // e.g., 'Mild', 'Moderate', 'Severe'
   accidentOrIncident    String  // 'Accident' or 'Incident'
   medicalCertificates   Int
-  daysAway              Int
+  daysAway              Int?
+  hoursAway             Int?
+
   comments              String?
+
+  // Relação com AccidentCost
+  accidentCost          AccidentCost?
 
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
@@ -146,21 +150,15 @@ model AccidentControl {
 
 model AccidentCost {
   id                    String   @id @default(uuid()) @db.Uuid
-  employeeId            String   @db.Uuid
-  employee              Employee @relation(fields: [employeeId], references: [id])
+  accidentId            String   @unique @db.Uuid
+  accident              AccidentControl @relation(fields: [accidentId], references: [id])
 
-  registrationNumber    String  @unique  // Matrícula do funcionário
-  accidentDate          DateTime
-  sex                   String
-  accidentsWithLeave    Boolean
-  leaveStartDate        DateTime?
-  daysAway              Int?
-  hoursAway             Int?
   medicationCost        Decimal  @default(0.0)
   foodCost              Decimal  @default(0.0)
   materialCost          Decimal  @default(0.0)
   legalCost             Decimal  @default(0.0)
   totalCost             Decimal  @default(0.0)
+
   comments              String?
 
   createdAt             DateTime @default(now())

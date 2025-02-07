@@ -82,7 +82,7 @@ export class AccidentControlController {
     return this.accidentControlService.create(dto);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   @ApiOperation({ summary: 'Atualiza informações de um acidente' })
   @ApiParam({ name: 'id', description: 'ID do acidente a ser atualizado', example: '3f2a6d4b-9a5e-47c9-bf1f-832e2e5e7f2a' })
   @ApiBody({

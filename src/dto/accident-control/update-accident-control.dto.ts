@@ -43,6 +43,9 @@ export class UpdateAccidentControlDto {
   @IsInt()
   daysAway?: number;
 
+  @IsInt()
+  hoursAway: number;
+
   @IsOptional()
   @IsString()
   comments?: string;

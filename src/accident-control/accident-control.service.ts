@@ -37,6 +37,7 @@ export class AccidentControlService {
         accidentOrIncident: dto.accidentOrIncident,
         medicalCertificates: dto.medicalCertificates,
         daysAway: dto.daysAway,
+        hoursAway: dto.hoursAway,
         comments: dto.comments,
         employee: {
           connect: { id: dto.employeeId },
