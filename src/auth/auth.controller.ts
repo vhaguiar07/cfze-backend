@@ -1,8 +1,10 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Get, Controller, Post, Body, Res, Req, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { User } from 'src/interfaces/user-interface';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Response } from 'express';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -103,5 +105,36 @@ export class AuthController {
   async logout(@Res() res: Response) {
     res.clearCookie('token');
     return res.json({ message: 'Logout realizado com sucesso' });
+  }
+
+  @Get('validate')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Validar autenticação do usuário' })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário autenticado com sucesso.',
+    schema: {
+      example: {
+        user: {
+          id: 'e996b30f-5b02-4664-9c3c-ece22dc48a91',
+          username: 'johndoe',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Token inválido',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiBearerAuth('JWT-auth')
+  validate(@Req() req: Request & { user: User }) {
+    return { user: req.user };
   }
 }

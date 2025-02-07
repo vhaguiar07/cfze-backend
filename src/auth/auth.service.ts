@@ -4,6 +4,11 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 
+const isProduction = process.env.NODE_ENV_PRODUCTION === 'true';
+const isDevelopment = process.env.NODE_ENV_DEVELOPMENT === 'true';
+
+const secureCookie = isProduction ? true : isDevelopment ? false : false;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -30,7 +35,7 @@ export class AuthService {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: secureCookie,
       maxAge: 3600000,
     });
 
