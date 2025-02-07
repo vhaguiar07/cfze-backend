@@ -109,4 +109,49 @@ export class AccidentControlService {
       accidents,
     };
   }
+
+  async searchByEmployeeName(fullName: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const accidents = await this.prisma.accidentControl.findMany({
+      where: {
+        employee: {
+          fullName: {
+            contains: fullName,
+            mode: 'insensitive', // Ignora maiúsculas e minúsculas
+          },
+        },
+      },
+      include: {
+        employee: {
+          select: {
+            fullName: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+      orderBy: {
+        accidentDate: 'desc',
+      },
+    });
+
+    const total = await this.prisma.accidentControl.count({
+      where: {
+        employee: {
+          fullName: {
+            contains: fullName,
+            mode: 'insensitive',
+          },
+        },
+      },
+    });
+
+    return {
+      total,
+      page,
+      limit,
+      accidents,
+    };
+  }
 }

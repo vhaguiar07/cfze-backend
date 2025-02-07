@@ -206,4 +206,70 @@ export class AccidentControlController {
       accidents,
     };
   }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Busca acidentes pelo nome do funcionário', description: 'Retorna acidentes associados a um funcionário específico, com paginação' })
+  @ApiQuery({
+    name: 'fullName',
+    required: true,
+    description: 'Nome (ou parte) do funcionário a ser pesquisado',
+    type: String,
+    example: 'John Doe',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Número da página (padrão 1)',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Número de itens por página (padrão 10)',
+    type: Number,
+    example: 10,
+  })
+  @ApiOkResponse({
+    description: 'Lista de acidentes encontrados',
+    schema: {
+      example: {
+        total: 2,
+        page: 1,
+        limit: 10,
+        accidents: [
+          {
+            id: '3f2a6d4b-9a5e-47c9-bf1f-832e2e5e7f2a',
+            accidentNumber: 'CAT12345',
+            accidentDate: '2024-02-07T12:00:00.000Z',
+            employee: {
+              fullName: 'John Doe',
+            },
+            jobTitle: 'Operador de Máquinas',
+            accidentType: 'Queda',
+            accidentDescription: 'O funcionário escorregou e caiu.',
+            accidentsWithLeave: true,
+            bodyPartAffected: 'Perna',
+            injurySeverity: 'Moderada',
+            accidentOrIncident: 'Acidente',
+            medicalCertificates: 2,
+            daysAway: 5,
+            comments: 'Uso de muletas recomendado',
+            createdAt: '2024-02-07T12:30:00.000Z',
+            updatedAt: '2024-02-07T12:30:00.000Z',
+          }
+        ]
+      }
+    }
+  })
+  async searchAccidents(
+    @Query('fullName') fullName: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+  ) {
+    const currentPage = page || 1;
+    const currentLimit = limit ?? 10;
+
+    return await this.accidentControlService.searchByEmployeeName(fullName, currentPage, currentLimit);
+  }
 }
