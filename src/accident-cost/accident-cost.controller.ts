@@ -79,7 +79,7 @@ export class AccidentCostController {
   }
 
   @Patch('update/:id')
-  @ApiOperation({ summary: 'Atualiza informações do custo do acidente' })
+  @ApiOperation({ summary: 'Atualiza informações dos valores do acidente pelo ID do próprio, não do custo' })
   @ApiParam({ name: 'id', required: true, description: 'ID do custo do acidente', example: '3f2a6d4b-9a5e-47c9-bf1f-832e2e5e7f2a' })
   @ApiBody({
     description: 'Dados para atualizar um controle de custo do acidente',
