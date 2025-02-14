@@ -1,4 +1,4 @@
-import { Controller, Post, Patch, Get, Param, Body, Query } from '@nestjs/common';
+import { Controller, Post, Patch, Get, Param, Body, Query, NotFoundException } from '@nestjs/common';
 import { AccidentCostService } from './accident-cost.service';
 import { CreateAccidentCostDto } from '../dto/accident-cost/create-accident-cost.dto';
 import { UpdateAccidentCostDto } from '../dto/accident-cost/update-accident-cost.dto';
@@ -187,5 +187,54 @@ export class AccidentCostController {
       limit: currentLimit,
       accidentCosts,
     };
+  }
+
+  @Get('findOne/:id')
+  @ApiOperation({ summary: 'Busca um custo de acidente pelo ID do acidente, não do custo' })
+  @ApiParam({ name: 'id', required: true, description: 'UUID do custo do acidente', type: String, example: '3f2a6d4b-9a5e-47c9-bf1f-832e2e5e7f2a' })
+  @ApiResponse({
+    status: 200,
+    description: 'Custo do acidente encontrado',
+    schema: {
+      example: {
+        id: '3f2a6d4b-9a5e-47c9-bf1f-832e2e5e7f2a',
+        accidentId: '1a1035da-6400-44d9-bcae-2ad0cd11ad9a',
+        medicationCost: 180.00,
+        foodCost: 100.00,
+        materialCost: 200.00,
+        legalCost: 500.00,
+        totalCost: 980.00,
+        comments: "Custo atualizado após novos exames.",
+        createdAt: '2024-02-07T12:30:00.000Z',
+        updatedAt: '2024-02-08T14:15:00.000Z',
+        accident: {
+          accidentNumber: 'CAT12345',
+          accidentDate: '2024-02-07T12:00:00.000Z',
+          accidentType: 'Queda',
+          employee: {
+            fullName: 'John Doe',
+            department: 'Produção'
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Custo do acidente não encontrado',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Custo do acidente não encontrado',
+        error: 'Not Found'
+      }
+    }
+  })
+  async findById(@Param('id') id: string) {
+    const accidentCost = await this.accidentCostService.findById(id);
+    if (!accidentCost) {
+      throw new NotFoundException('Custo do acidente não encontrado');
+    }
+    return accidentCost;
   }
 }

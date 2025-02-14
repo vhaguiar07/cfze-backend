@@ -78,13 +78,16 @@ export class AccidentControlService {
     });
   }
 
-  async findAll(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: 'asc' | 'desc' = 'desc') {
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string = 'createdAt',
+    sortOrder: 'asc' | 'desc' = 'desc'
+  ) {
     const skip = page > 0 && limit > 0 ? (page - 1) * limit : 0;
     const take = limit > 0 ? limit : undefined;
 
-    const orderBy: any = {
-      [sortBy]: sortOrder,
-    };
+    const orderBy: any = { [sortBy]: sortOrder };
 
     const accidents = await this.prisma.accidentControl.findMany({
       skip: take ? skip : undefined,
@@ -96,8 +99,9 @@ export class AccidentControlService {
             fullName: true,
             department: true,
           }
-        }
-      }
+        },
+        accidentCost: true,
+      },
     });
 
     const totalAccidents = await this.prisma.accidentControl.count();

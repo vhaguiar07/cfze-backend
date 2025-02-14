@@ -55,10 +55,10 @@ export class AccidentCostService {
     }
   }
 
-  async update(id: string, dto: UpdateAccidentCostDto) {
+  async update(accidentId: string, dto: UpdateAccidentCostDto) {
     try {
       const accidentCost = await this.prisma.accidentCost.findUnique({
-        where: { id },
+        where: { accidentId },
       });
 
       if (!accidentCost) {
@@ -71,7 +71,7 @@ export class AccidentCostService {
         .plus(new Prisma.Decimal(dto.legalCost ?? accidentCost.legalCost));
 
       return await this.prisma.accidentCost.update({
-        where: { id },
+        where: { accidentId },
         data: {
           medicationCost: dto.medicationCost ?? accidentCost.medicationCost,
           foodCost: dto.foodCost ?? accidentCost.foodCost,
@@ -130,4 +130,26 @@ export class AccidentCostService {
       accidentCosts,
     };
   }
+
+  async findById(accidentId: string) {
+    return this.prisma.accidentCost.findUnique({
+      where: { accidentId },
+      include: {
+        accident: {
+          select: {
+            accidentNumber: true,
+            accidentDate: true,
+            accidentType: true,
+            employee: {
+              select: {
+                fullName: true,
+                department: true,
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
 }

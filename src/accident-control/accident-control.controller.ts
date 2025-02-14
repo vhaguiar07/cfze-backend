@@ -138,7 +138,7 @@ export class AccidentControlController {
   }
 
   @Get('listAll')
-  @ApiOperation({ summary: 'Lista todos os acidentes com paginação e ordenação opcionais' })
+  @ApiOperation({ summary: 'Lista todos os acidentes com seus custos (se existirem), paginação e ordenação opcionais' })
   @ApiQuery({ name: 'page', required: false, description: 'Número da página (padrão 1)', type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, description: 'Itens por página (padrão 10)', type: Number, example: 10 })
   @ApiQuery({ name: 'sortBy', required: false, description: 'Campo para ordenação (ex: accidentDate, createdAt)', type: String, example: 'createdAt' })
@@ -175,6 +175,17 @@ export class AccidentControlController {
             employee: {
               fullName: 'John Doe',
               department: 'Produção',
+            },
+            accidentCost: {
+              id: '8a2b4d1e-6500-4a12-91e6-98cbf4e7f6c2',
+              medicationCost: 200.00,
+              foodCost: 150.00,
+              materialCost: 300.00,
+              legalCost: 500.00,
+              totalCost: 1150.00,
+              comments: 'Custos adicionais com medicamentos.',
+              createdAt: '2024-02-08T10:15:00.000Z',
+              updatedAt: '2024-02-08T10:15:00.000Z'
             }
           }
         ]
