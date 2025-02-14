@@ -7,9 +7,10 @@ import { EmployeeModule } from './employee/employee.module';
 import { AccidentControlModule } from './accident-control/accident-control.module';
 import { AccidentCostModule } from './accident-cost/accident-cost.module';
 import { CompanyModule } from './company/company.module';
+import { EmployeeBenefitModule } from './employee-benefit/employee-benefit.module';
 
 @Module({
-  imports: [AuthModule, EmployeeModule, AccidentControlModule, AccidentCostModule, CompanyModule],
+  imports: [AuthModule, EmployeeModule, AccidentControlModule, AccidentCostModule, CompanyModule, EmployeeBenefitModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

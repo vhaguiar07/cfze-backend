@@ -4,7 +4,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeService } from './employee.service';
 
-@ApiTags('employees')
+@ApiTags('Funcionários')
 @Controller('employees')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
@@ -92,6 +92,7 @@ export class EmployeeController {
       example1: {
         summary: 'Exemplo de funcionário',
         value: {
+          cnpj: '12345678000199',
           fullName: 'John Doe',
           address: 'Rua dos Estudantes, 87',
           city: 'São Paulo',

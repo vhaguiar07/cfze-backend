@@ -188,7 +188,7 @@ model EmployeeBenefit {
   company                   Company  @relation(fields: [companyId], references: [id])
 
   benefit                   String
-  month                     String
+  referencePeriod           String
   type                      String
   area                      String?
   jobTitle                  String
