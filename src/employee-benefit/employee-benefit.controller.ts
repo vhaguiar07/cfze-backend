@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Param, Patch, Post, Delete, Query, NotFoundException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiOkResponse, ApiCreatedResponse, ApiQuery, ApiNotFoundResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam, ApiOkResponse, ApiQuery, ApiNotFoundResponse } from '@nestjs/swagger';
 import { CreateEmployeeBenefitDto } from '../dto/employee-benefit/create-employee-benefit.dto';
 import { UpdateEmployeeBenefitDto } from '../dto/employee-benefit/update-employee-benefit.dto';
 import { EmployeeBenefitService } from './employee-benefit.service';
 
-@ApiTags('Benefícios')
+@ApiTags('Benefício')
 @Controller('employee-benefit')
 export class EmployeeBenefitController {
   constructor(private readonly employeeBenefitService: EmployeeBenefitService) {}

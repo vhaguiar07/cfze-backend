@@ -100,6 +100,7 @@ model Employee {
   companyId              String    @db.Uuid
   company                Company   @relation(fields: [companyId], references: [id])
   employeeBenefits       EmployeeBenefit[]
+  attendanceRecords      EmployeeAttendance[]
   incidentRecords        IncidentRecord[]
   accidentControls       AccidentControl[]
 
@@ -114,6 +115,7 @@ model Company {
   cnpj              String   @unique
   employees         Employee[]
   employeeBenefits  EmployeeBenefit[]
+  attendanceRecords EmployeeAttendance[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -198,6 +200,33 @@ model EmployeeBenefit {
   justifiedAbsenceDays      Int
   paidDays                  Int
   totalPrice                Decimal
+  comments                  String?
+
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
+model EmployeeAttendance {
+  id                        String   @id @default(uuid()) @db.Uuid
+  employeeId                String   @db.Uuid
+  employee                  Employee @relation(fields: [employeeId], references: [id])
+  companyId                 String   @db.Uuid
+  company                   Company  @relation(fields: [companyId], references: [id])
+
+  area                      String?
+  jobTitle                  String
+  referencePeriod           String  // Exemplo: "Janeiro/2025"
+  absenceDescription        String? // Exemplo: "Falta Justificada"
+  situation                 String  // Exemplo: "Atestado Médico"
+
+  workDays                  Int     // Quantidade de dias úteis
+  absences                  Int     // Quantidade de faltas
+  medicalLeaveDays          Int     // Quantidade de dias de atestado médico
+  extraDays                 Int     // Quantidade de dias extras
+  justifiedAbsenceDays      Int     // Quantidade de dias abonados
+  workedDays                Int     // Quantidade de dias trabalhados
+
+  date                      DateTime // Data do registro
   comments                  String?
 
   createdAt                 DateTime @default(now())
