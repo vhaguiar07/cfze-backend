@@ -9,9 +9,18 @@ export class EmployeeService {
   constructor(private prisma: PrismaService) {}
 
   async create(employeeDto: CreateEmployeeDto) {
+    const company = await this.prisma.company.findUnique({
+      where: { cnpj: employeeDto.cnpj },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Empresa não encontrada');
+    }
+
     try {
       return await this.prisma.employee.create({
         data: {
+          companyId: company.id,
           fullName: employeeDto.fullName,
           address: employeeDto.address,
           city: employeeDto.city,

@@ -97,12 +97,27 @@ model Employee {
   leaveOfAbsenceDates    DateTime[] @default([])
 
   // Relations
+  companyId              String    @db.Uuid
+  company                Company   @relation(fields: [companyId], references: [id])
+  employeeBenefits       EmployeeBenefit[]
   incidentRecords        IncidentRecord[]
   accidentControls       AccidentControl[]
 
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
   deletedAt              DateTime?
+}
+
+model Company {
+  id                String              @id @default(uuid()) @db.Uuid
+  name              String
+  cnpj              String   @unique
+  employees         Employee[]
+  employeeBenefits  EmployeeBenefit[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
 }
 
 model IncidentRecord {
@@ -163,4 +178,28 @@ model AccidentCost {
 
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+model EmployeeBenefit {
+  id                        String   @id @default(uuid()) @db.Uuid
+  employeeId                String   @db.Uuid
+  employee                  Employee @relation(fields: [employeeId], references: [id])
+  companyId                 String   @db.Uuid
+  company                   Company  @relation(fields: [companyId], references: [id])
+
+  benefit                   String
+  month                     String
+  type                      String
+  area                      String?
+  jobTitle                  String
+  mealVoucherPrice          Decimal
+  workDays                  Int
+  extraDays                 Int
+  justifiedAbsenceDays      Int
+  paidDays                  Int
+  totalPrice                Decimal
+  comments                  String?
+
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
