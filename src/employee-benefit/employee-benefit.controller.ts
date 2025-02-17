@@ -229,4 +229,71 @@ export class EmployeeBenefitController {
   async update(@Param('id') id: string, @Body() updateEmployeeBenefitDto: UpdateEmployeeBenefitDto) {
     return await this.employeeBenefitService.update(id, updateEmployeeBenefitDto);
   }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Busca benefícios pelo nome do funcionário', description: 'Retorna benefícios associados a um funcionário específico, com paginação' })
+  @ApiQuery({
+    name: 'fullName',
+    required: true,
+    description: 'Nome (ou parte) do funcionário a ser pesquisado',
+    type: String,
+    example: 'John Doe',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Número da página (padrão 1)',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Número de itens por página (padrão 10)',
+    type: Number,
+    example: 10,
+  })
+  @ApiOkResponse({
+    description: 'Lista de benefícios encontrados',
+    schema: {
+      example: {
+        total: 2,
+        page: 1,
+        limit: 10,
+        benefits: [
+          {
+            id: "675c002b-3f9d-4bd5-a2ac-7d74b886cf8c",
+            employee: {
+              fullName: "John Doe"
+            },
+            companyCnpj: "12345678000199",
+            benefit: "Vale Alimentação",
+            referencePeriod: "Fevereiro/2025",
+            type: "Alimentação",
+            area: "TI",
+            jobTitle: "Desenvolvedor",
+            mealVoucherPrice: 550,
+            workDays: 22,
+            extraDays: 0,
+            justifiedAbsenceDays: 0,
+            paidDays: 22,
+            totalPrice: 600,
+            comments: "",
+            createdAt: "2025-02-14T12:30:00.000Z",
+            updatedAt: "2025-02-14T12:30:00.000Z"
+          }
+        ]
+      }
+    }
+  })
+  async searchBenefits(
+    @Query('fullName') fullName: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+  ) {
+    const currentPage = page || 1;
+    const currentLimit = limit ?? 10;
+
+    return await this.employeeBenefitService.searchByEmployeeName(fullName, currentPage, currentLimit);
+  }  
 }

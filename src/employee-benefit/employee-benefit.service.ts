@@ -183,4 +183,49 @@ export class EmployeeBenefitService {
       throw new Error(`Erro ao atualizar benefício: ${error.message}`);
     }
   }
+
+  async searchByEmployeeName(fullName: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const benefits = await this.prisma.employeeBenefit.findMany({
+      where: {
+        employee: {
+          fullName: {
+            contains: fullName,
+            mode: 'insensitive',
+          },
+        },
+      },
+      include: {
+        employee: {
+          select: {
+            fullName: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const total = await this.prisma.employeeBenefit.count({
+      where: {
+        employee: {
+          fullName: {
+            contains: fullName,
+            mode: 'insensitive',
+          },
+        },
+      },
+    });
+
+    return {
+      total,
+      page,
+      limit,
+      benefits,
+    };
+  }  
 }
