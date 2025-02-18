@@ -227,5 +227,5 @@ export class EmployeeBenefitService {
       limit,
       benefits,
     };
-  }  
+  }
 }

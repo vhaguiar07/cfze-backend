@@ -295,5 +295,5 @@ export class EmployeeBenefitController {
     const currentLimit = limit ?? 10;
 
     return await this.employeeBenefitService.searchByEmployeeName(fullName, currentPage, currentLimit);
-  }  
+  }
 }

@@ -47,7 +47,12 @@ export class EmployeeAttendanceService {
     });
   }
 
-  async findAll(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: 'asc' | 'desc' = 'desc') {
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string = "createdAt",
+    sortOrder: "asc" | "desc" = "desc"
+  ) {
     const skip = page > 0 && limit > 0 ? (page - 1) * limit : 0;
     const take = limit > 0 ? limit : undefined;
 
@@ -57,8 +62,8 @@ export class EmployeeAttendanceService {
 
     const attendanceRecords = await this.prisma.employeeAttendance.findMany({
       include: {
-        employee: { select: { cpf: true } },
-        company: { select: { cnpj: true } }
+        employee: { select: { cpf: true, fullName: true } },
+        company: { select: { cnpj: true } },
       },
       skip: take ? skip : undefined,
       take: take,
@@ -74,6 +79,7 @@ export class EmployeeAttendanceService {
       attendanceRecords: attendanceRecords.map((record) => ({
         id: record.id,
         employeeCpf: record.employee.cpf,
+        employeeFullName: record.employee.fullName,
         companyCnpj: record.company.cnpj,
         area: record.area,
         jobTitle: record.jobTitle,
@@ -183,5 +189,76 @@ export class EmployeeAttendanceService {
     } catch (error) {
       throw new Error(`Erro ao atualizar registro de faltas: ${error.message}`);
     }
+  }
+
+  async searchByEmployeeName(fullName: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const attendanceRecords = await this.prisma.employeeAttendance.findMany({
+      where: {
+        employee: {
+          fullName: {
+            contains: fullName,
+            mode: "insensitive",
+          },
+        },
+      },
+      include: {
+        employee: {
+          select: {
+            fullName: true,
+            cpf: true,
+          },
+        },
+        company: {
+          select: {
+            cnpj: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const total = await this.prisma.employeeAttendance.count({
+      where: {
+        employee: {
+          fullName: {
+            contains: fullName,
+            mode: "insensitive",
+          },
+        },
+      },
+    });
+
+    return {
+      total,
+      page,
+      limit,
+      attendanceRecords: attendanceRecords.map((record) => ({
+        id: record.id,
+        employeeCpf: record.employee.cpf,
+        employeeFullName: record.employee.fullName,
+        companyCnpj: record.company.cnpj,
+        area: record.area,
+        jobTitle: record.jobTitle,
+        referencePeriod: record.referencePeriod,
+        absenceDescription: record.absenceDescription,
+        situation: record.situation,
+        workDays: record.workDays,
+        absences: record.absences,
+        medicalLeaveDays: record.medicalLeaveDays,
+        extraDays: record.extraDays,
+        justifiedAbsenceDays: record.justifiedAbsenceDays,
+        workedDays: record.workedDays,
+        date: record.date,
+        comments: record.comments,
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt,
+      })),
+    };
   }
 }

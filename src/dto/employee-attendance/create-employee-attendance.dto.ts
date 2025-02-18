@@ -15,14 +15,14 @@ export class CreateEmployeeAttendanceDto {
   jobTitle: string;
 
   @IsString()
-  referencePeriod: string; // Exemplo: "Janeiro/2025"
+  referencePeriod: string;
 
   @IsOptional()
   @IsString()
   absenceDescription?: string;
 
   @IsString()
-  situation: string; // Exemplo: "Atestado Médico"
+  situation: string;
 
   @IsNumber()
   @Min(0)

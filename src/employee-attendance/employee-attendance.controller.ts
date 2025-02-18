@@ -223,4 +223,72 @@ export class EmployeeAttendanceController {
   async update(@Param('id') id: string, @Body() updateEmployeeAttendanceDto: UpdateEmployeeAttendanceDto) {
     return await this.employeeAttendanceService.update(id, updateEmployeeAttendanceDto);
   }
+
+  @Get('search')
+  @ApiOperation({ summary: 'Busca registros de frequência pelo nome do funcionário', description: 'Retorna registros de frequência de um funcionário específico, com paginação' })
+  @ApiQuery({
+    name: 'fullName',
+    required: true,
+    description: 'Nome (ou parte) do funcionário a ser pesquisado',
+    type: String,
+    example: 'John Doe',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Número da página (padrão 1)',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Número de itens por página (padrão 10)',
+    type: Number,
+    example: 10,
+  })
+  @ApiOkResponse({
+    description: 'Lista de registros de frequência encontrados',
+    schema: {
+      example: {
+        total: 2,
+        page: 1,
+        limit: 10,
+        attendanceRecords: [
+          {
+            id: "f9c21c3e-8b4f-4569-98a9-63a0b0c5a93d",
+            employee: {
+              fullName: "John Doe"
+            },
+            companyCnpj: "12345678000199",
+            area: "TI",
+            jobTitle: "Desenvolvedor",
+            referencePeriod: "Janeiro/2025",
+            absenceDescription: "Falta Justificada",
+            situation: "Atestado Médico",
+            workDays: 26,
+            absences: 1,
+            medicalLeaveDays: 2,
+            extraDays: 3,
+            justifiedAbsenceDays: 1,
+            workedDays: 22,
+            date: "2025-01-31T00:00:00.000Z",
+            comments: "Faltou por motivos de saúde",
+            createdAt: "2025-02-14T12:30:00.000Z",
+            updatedAt: "2025-02-14T12:30:00.000Z"
+          }
+        ]
+      }
+    }
+  })
+  async searchAttendanceRecords(
+    @Query('fullName') fullName: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number
+  ) {
+    const currentPage = page || 1;
+    const currentLimit = limit ?? 10;
+
+    return await this.employeeAttendanceService.searchByEmployeeName(fullName, currentPage, currentLimit);
+  }
 }
