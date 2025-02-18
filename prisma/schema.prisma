@@ -103,6 +103,7 @@ model Employee {
   attendanceRecords      EmployeeAttendance[]
   incidentRecords        IncidentRecord[]
   accidentControls       AccidentControl[]
+  ppeControls            EmployeePPEControl[]
 
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
@@ -231,4 +232,21 @@ model EmployeeAttendance {
 
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
+}
+
+model EmployeePPEControl {
+  id                      String   @id @default(uuid()) @db.Uuid
+  employeeId              String   @db.Uuid
+  employee                Employee @relation(fields: [employeeId], references: [id])
+
+  ppeDescription          String   // Descrição do EPI
+  department              String   // Setor do funcionário
+  referenceMonth          String   // Mês de referência (exemplo: "Janeiro")
+  situation               String   // Situação (exemplo: "Troca do EPI", "Aquisição", "Saída")
+  quantity                Int      // Quantidade de EPIs fornecidos ou trocados
+  reasonForReplacement    String?  // Motivo da troca do EPI
+  comments                String?  // Comentários adicionais
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
