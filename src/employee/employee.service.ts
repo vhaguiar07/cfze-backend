@@ -9,25 +9,34 @@ export class EmployeeService {
   constructor(private prisma: PrismaService) {}
 
   async create(employeeDto: CreateEmployeeDto) {
+    const company = await this.prisma.company.findUnique({
+      where: { cnpj: employeeDto.cnpj.replace(/\D/g, '') },
+    });
+  
+    if (!company) {
+      throw new NotFoundException('Empresa não encontrada');
+    }
+  
     try {
       return await this.prisma.employee.create({
         data: {
+          companyId: company.id,
           fullName: employeeDto.fullName,
           address: employeeDto.address,
           city: employeeDto.city,
           postalCode: employeeDto.postalCode,
           phoneNumber: employeeDto.phoneNumber,
           nationality: employeeDto.nationality,
-          cpf: employeeDto.cpf,
-          rg: employeeDto.rg,
+          cpf: employeeDto.cpf.replace(/\D/g, ''),
+          rg: employeeDto.rg.replace(/\D/g, ''),
           rgIssueDate: employeeDto.rgIssueDate,
           rgIssuingAgency: employeeDto.rgIssuingAgency,
           rgState: employeeDto.rgState,
-          ctps: employeeDto.ctps,
-          pisPasep: employeeDto.pisPasep,
+          ctps: employeeDto.ctps.replace(/\D/g, ''),
+          pisPasep: employeeDto.pisPasep.replace(/\D/g, ''),
           educationLevel: employeeDto.educationLevel,
-          voterRegistration: employeeDto.voterRegistration,
-          reservist: employeeDto.reservist,
+          voterRegistration: employeeDto.voterRegistration?.replace(/\D/g, ''),
+          reservist: employeeDto.reservist?.replace(/\D/g, ''),
           fatherName: employeeDto.fatherName,
           motherName: employeeDto.motherName,
           maritalStatus: employeeDto.maritalStatus,
@@ -75,7 +84,7 @@ export class EmployeeService {
           maternityLeaveDates: employeeDto.maternityLeaveDates,
           electoralLeaveDates: employeeDto.electoralLeaveDates,
           sufferedAccident: employeeDto.sufferedAccident,
-          leaveOfAbsenceDates: employeeDto.leaveOfAbsenceDates
+          leaveOfAbsenceDates: employeeDto.leaveOfAbsenceDates,
         },
       });
     } catch (error) {
@@ -86,7 +95,7 @@ export class EmployeeService {
       }
       throw error;
     }
-  }
+  }  
 
   async findAll(page: number, limit: number, sortBy: string = 'createdAt', sortOrder: 'asc' | 'desc' = 'desc') {
     const skip = page > 0 && limit > 0 ? (page - 1) * limit : 0;

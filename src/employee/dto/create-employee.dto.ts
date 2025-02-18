@@ -3,6 +3,11 @@ import { IsString, IsInt, IsBoolean, IsDate, IsOptional, IsNumber, IsArray, IsNo
 import { Transform } from 'class-transformer';
 
 export class CreateEmployeeDto {
+  @ApiProperty({ example: 'CNPJ-DA-EMPRESA' })
+  @IsString()
+  @IsNotEmpty({ message: 'O campo CNPJ da Empresa é obrigatório' })
+  cnpj: string;
+
   @ApiProperty({ example: 'John Doe' })
   @IsString()
   @IsNotEmpty({ message: 'O campo Nome Completo é obrigatório' })

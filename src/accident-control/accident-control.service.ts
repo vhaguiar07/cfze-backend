@@ -122,7 +122,7 @@ export class AccidentControlService {
         employee: {
           fullName: {
             contains: fullName,
-            mode: 'insensitive', // Ignora maiúsculas e minúsculas
+            mode: 'insensitive',
           },
         },
       },
